@@ -1,19 +1,20 @@
 package com.user.mapper;
 
+import com.user.dto.UserCreateDto;
 import com.user.dto.UserDto;
 import com.user.entity.User;
 
 public class UserMapper {
 
-	public static User mapToUser(UserDto userDto) {
+	public static User mapToUser(UserCreateDto userCreateDto) {
 		User user = new User(
-				userDto.id(),
-				userDto.name(),
-				userDto.email(),
+				userCreateDto.id(),
+				userCreateDto.name(),
+				userCreateDto.email(),
 				null,
-				userDto.phone(),
-				userDto.createdAt(),
-				userDto.updateAt());
+				userCreateDto.phone(),
+				userCreateDto.createdAt(),
+				userCreateDto.updateAt());
 		
 		return user;
 	}
