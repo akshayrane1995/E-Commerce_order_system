@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.user.dto.UserCreateDto;
 import com.user.dto.UserDto;
+import com.user.exception.ResourceNotFoundException;
 import com.user.service.UserService;
 
 import jakarta.servlet.ServletException;
@@ -72,14 +73,15 @@ public class UserControllerTest {
 	        .andExpect(jsonPath("$.email").value("rahul@test.com"));
 	}
 
-//	@Test
-//	void getUserById_shouldReturn500_whenUserNotFound() throws Exception {
-//	    when(userService.getUserById(99L)).thenThrow(new RuntimeException("user does not exits"));
-//
-//	    mockMvc.perform(get("/user/id/{id}", 99L))
-//	    .andExpect(status().isInternalServerError());
-//	    
-//	 	}
+	@Test
+	void getUserById_shouldReturn404_whenUserNotFound() throws Exception {
+	    when(userService.getUserById(99L)).thenThrow(new ResourceNotFoundException("user does not exits"));
+
+	    mockMvc.perform(get("/user/id/{id}", 99L))
+	        .andExpect(status().isNotFound())
+	        .andExpect(jsonPath("$.message").value("user does not exits"))
+	        .andExpect(jsonPath("$.errorCode").value("USER_RESOURCE_NOT_FOUND"));
+	}
 	
 	@Test
 	void getAllUsers_shouldReturn200AndListOfUsers() throws Exception {
