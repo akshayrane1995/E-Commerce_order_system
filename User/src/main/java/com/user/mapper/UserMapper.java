@@ -11,7 +11,7 @@ public class UserMapper {
 				userCreateDto.id(),
 				userCreateDto.name(),
 				userCreateDto.email(),
-				null,
+				userCreateDto.password(),
 				userCreateDto.phone(),
 				userCreateDto.createdAt(),
 				userCreateDto.updateAt());

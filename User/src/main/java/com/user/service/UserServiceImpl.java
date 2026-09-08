@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.user.dto.UserCreateDto;
 import com.user.dto.UserDto;
 import com.user.entity.User;
+import com.user.exception.ResourceNotFoundException;
 import com.user.mapper.UserMapper;
 import com.user.repository.UserRepository;
 
@@ -29,7 +30,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserDto getUserById(Long id) {
-		User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("user does not exits"));
+		User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("user does not exits"));
 		return UserMapper.mapToUserDto(user);
 	}
 
@@ -41,7 +42,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserDto updateUser(UserDto userDto, Long id) {
-		User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User does not exist"));
+		User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
 
 		user.setName(userDto.name());
 		user.setEmail(userDto.email());
@@ -54,7 +55,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public void deleteUser(Long id) {
 		if (!userRepository.existsById(id)) {
-			throw new RuntimeException("User does not exist");
+			throw new ResourceNotFoundException("User does not exist");
 		}
 		userRepository.deleteById(id);
 	}
