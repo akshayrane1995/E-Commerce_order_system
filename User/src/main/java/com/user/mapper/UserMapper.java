@@ -8,13 +8,13 @@ public class UserMapper {
 
 	public static User mapToUser(UserCreateDto userCreateDto) {
 		User user = new User(
-				userCreateDto.id(),
+				null,
 				userCreateDto.name(),
 				userCreateDto.email(),
 				userCreateDto.password(),
 				userCreateDto.phone(),
-				userCreateDto.createdAt(),
-				userCreateDto.updateAt());
+				null,
+				null);
 		
 		return user;
 	}
