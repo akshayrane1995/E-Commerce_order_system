@@ -1,6 +1,11 @@
 package com.user.entity;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Collections;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,7 +23,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "user_details")
-public class User {
+public class User implements UserDetails{
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,4 +34,13 @@ public class User {
 	private String phone;
 	private LocalDateTime createdAt;
 	private LocalDateTime updateAt;
+	
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return Collections.emptyList();
+	}
+	@Override
+	public String getUsername() {
+		return email;
+	}
 }
