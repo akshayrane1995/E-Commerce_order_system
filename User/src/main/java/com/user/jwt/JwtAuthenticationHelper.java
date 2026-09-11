@@ -1,11 +1,13 @@
 package com.user.jwt;
 
 import java.util.Date;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.crypto.spec.SecretKeySpec;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -16,8 +18,14 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Component
 public class JwtAuthenticationHelper {
 
-	private String secret = "thisprojectisforecommercesapplicationwithprovidingsecurityusingjwt";
-	private static final long JWT_TOKEN_VALIDITY = 60 * 60;
+	 private final String secret;
+	 private final long expiration;
+	 
+	 public JwtAuthenticationHelper(@Value("${jwt.secret}") String secret,
+			 						@Value("${jwt.expiration}") long expiration){
+		 this.secret = secret;
+		 this.expiration = expiration;
+	 }
 	
 	public String getUsernameFromToken(String token) {
 		Claims claims = getClaimsFromToken(token);
@@ -41,7 +49,7 @@ public class JwtAuthenticationHelper {
 		Map<String, Object> claims = new HashMap<>();
 		return Jwts.builder().setClaims(claims).setSubject(userDetails.getUsername())
 				.setIssuedAt(new Date(System.currentTimeMillis()))
-				.setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
+				.setExpiration(new Date(System.currentTimeMillis() + expiration * 1000))
 				.signWith(new SecretKeySpec(secret.getBytes(), SignatureAlgorithm.HS512.getJcaName()),
 						SignatureAlgorithm.HS512)
 				.compact();
