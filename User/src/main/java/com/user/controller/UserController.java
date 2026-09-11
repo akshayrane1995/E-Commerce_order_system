@@ -17,6 +17,8 @@ import com.user.dto.UserCreateDto;
 import com.user.dto.UserDto;
 import com.user.service.UserService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -29,7 +31,7 @@ public class UserController {
 
 	// create user
 	@PostMapping("/register")
-	public ResponseEntity<UserDto> createUser(@RequestBody UserCreateDto userCreateDto) {
+	public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserCreateDto userCreateDto) {
 		UserDto save = userService.createUser(userCreateDto);
 		return ResponseEntity.status(HttpStatus.CREATED).body(save);
 
