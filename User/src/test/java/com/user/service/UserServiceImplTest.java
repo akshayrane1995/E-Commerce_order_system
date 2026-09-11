@@ -31,7 +31,7 @@ public class UserServiceImplTest {
 	@BeforeEach
 	void setup() {
 		LocalDateTime now = LocalDateTime.now();
-		userCreateDto = new UserCreateDto(null, "Rahul", "rahul@test.com", "pass123", "9999999999", now, now);
+		userCreateDto = new UserCreateDto("Rahul", "rahul@test.com", "pass123", "9999999999");
 		user = new User(1L, "Rahul", "rahul@test.com", "pass123", "9999999999", now, now);
 	}
 
