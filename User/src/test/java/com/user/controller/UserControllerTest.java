@@ -45,14 +45,14 @@ public class UserControllerTest {
 	@Test
 	void create_shouldReturn201AndUserDto() throws Exception{
 		LocalDateTime now = LocalDateTime.now();
-		UserCreateDto requestDto = new UserCreateDto(null, "Rahul", "rahul@test.com", "pass123", "9999999999", now, now); 
-		UserDto responseDto = new UserDto(1L, "Rahul", "rahul@test.com", "9999999999", now, now);
+		UserCreateDto requestDto = new UserCreateDto("Rahul", "rahul@test.com", "pass123", "9999999999"); 
+		UserDto responseDto = new UserDto(1L, "Rahul", "rahul@test.com", "9999999999", null, null);
 		
 		when(userService.createUser(any(UserCreateDto.class))).thenReturn(responseDto);
 		
 		mockMvc.perform(post("/user/register")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(responseDto)))
+				.content(objectMapper.writeValueAsString(requestDto)))
 			.andExpect(status().isCreated())
 			.andExpect(jsonPath("$.id").value(1L))
 			.andExpect(jsonPath("$.name").value("Rahul"))
