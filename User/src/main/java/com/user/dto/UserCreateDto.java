@@ -2,6 +2,7 @@ package com.user.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record UserCreateDto(
@@ -18,6 +19,7 @@ public record UserCreateDto(
         String password,
 
         @NotBlank(message = "Phone is required")
+        @Pattern(regexp = "^[6-9]\\d{9}$",  message = "Phone number must be a valid 10-digit number")
         String phone
 
 ) {}
