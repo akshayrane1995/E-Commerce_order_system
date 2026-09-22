@@ -1,9 +1,10 @@
 package com.payment.entity;
 
 import java.math.BigDecimal;
+
 import java.time.LocalDateTime;
 
-import com.payment.constant.PaymentStauts;
+import com.payment.constant.PaymentStatus;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -32,7 +33,7 @@ public class Payment {
 	private BigDecimal amount;
 	
 	@Enumerated(EnumType.STRING)
-	private PaymentStauts status;
+	private PaymentStatus status;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 }
