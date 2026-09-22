@@ -1,6 +1,6 @@
 package com.payment.constant;
 
-public enum PaymentStauts {
+public enum PaymentStatus {
 
 	PENDING,
 	SUCCESS,
