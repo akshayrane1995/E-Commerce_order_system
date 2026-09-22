@@ -1,6 +1,7 @@
 package com.payment.mapper;
 
 import com.payment.dto.PaymentDto;
+
 import com.payment.entity.Payment;
 
 public class PaymentMapper {
@@ -9,7 +10,7 @@ public class PaymentMapper {
 		
 		Payment payment = new Payment(
 				null,
-				paymentDto.orderID(),
+				paymentDto.orderId(),
 				paymentDto.amount(),
 				paymentDto.status(),
 				null,
