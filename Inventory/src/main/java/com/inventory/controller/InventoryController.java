@@ -16,14 +16,20 @@ import org.springframework.web.bind.annotation.RestController;
 import com.inventory.dto.InventoryDto;
 import com.inventory.service.InventoryService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/inventory")
 public class InventoryController {
 
 	private InventoryService inventoryService;
 	
+	public InventoryController(InventoryService inventoryService) {
+	     this.inventoryService = inventoryService;
+	}
+	
 	@PostMapping("/create")
-	public ResponseEntity<InventoryDto> createInventory(@RequestBody InventoryDto inventoryDto){
+	public ResponseEntity<InventoryDto> createInventory(@Valid @RequestBody InventoryDto inventoryDto){
 		InventoryDto save = inventoryService.createInventory(inventoryDto);
 		return ResponseEntity.status(HttpStatus.CREATED).body(save);
 	}
@@ -41,7 +47,7 @@ public class InventoryController {
 	}
 	
 	@PutMapping("/{id}/update")
-	public ResponseEntity<InventoryDto> updateInventory(@PathVariable Long id, @RequestBody InventoryDto inventoryDto){
+	public ResponseEntity<InventoryDto> updateInventory(@PathVariable Long id, @Valid @RequestBody InventoryDto inventoryDto){
 		InventoryDto updatedInventory = inventoryService.updateInventory(id,inventoryDto);
 		return ResponseEntity.ok(updatedInventory);
 	}
