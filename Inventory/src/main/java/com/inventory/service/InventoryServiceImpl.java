@@ -4,11 +4,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.stereotype.Service;
+
 import com.inventory.dto.InventoryDto;
 import com.inventory.entity.Inventory;
+import com.inventory.exception.ResourceNotFoundException;
 import com.inventory.mapper.InventoryMapper;
 import com.inventory.repository.InventoryRepository;
 
+@Service
 public class InventoryServiceImpl implements InventoryService{
 
 	private InventoryRepository inventoryRepository;
@@ -31,7 +35,7 @@ public class InventoryServiceImpl implements InventoryService{
 
 	@Override
 	public InventoryDto getInventoryById(Long id) {
-		Inventory inventory = inventoryRepository.findById(id).orElseThrow(() -> new RuntimeException("inventory does not exists"));
+		Inventory inventory = inventoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("inventory does not exists"));
 		return InventoryMapper.mapToInventoryDto(inventory);
 	}
 
@@ -45,7 +49,7 @@ public class InventoryServiceImpl implements InventoryService{
 
 	@Override
 	public InventoryDto updateInventory(Long id, InventoryDto inventoryDto) {
-		Inventory inventory = inventoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Inventory does not exists"));
+		Inventory inventory = inventoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Inventory does not exists"));
 		
 		inventory.setAvailableQuantity(inventoryDto.availableQuantity());
 		inventory.setReservedQuantity(inventoryDto.reservedQuantity());
@@ -59,12 +63,8 @@ public class InventoryServiceImpl implements InventoryService{
 	@Override
 	public void deleteInventory(Long id) {
 		if(!inventoryRepository.existsById(id)){
-			throw new RuntimeException("Inventory does not exists");
+			throw new ResourceNotFoundException("Inventory does not exists");
 		}
 			inventoryRepository.deleteById(id);
 	}
-
-
-	
-
 }
