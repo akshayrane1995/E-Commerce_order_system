@@ -9,9 +9,9 @@ public class NotificationMapper {
 		
 		Notification notification = new Notification(
 				null,
-				notificationDto.orderId(),
 				notificationDto.userId(),
-				notificationDto.mesage(),
+				notificationDto.orderId(),
+				notificationDto.message(),
 				notificationDto.type(),
 				notificationDto.status(),
 				null,
