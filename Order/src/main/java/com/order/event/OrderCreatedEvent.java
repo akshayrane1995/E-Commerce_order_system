@@ -1,0 +1,6 @@
+package com.order.event;
+
+import java.math.BigDecimal;
+
+public record OrderCreatedEvent (Long orderId, Long userId, BigDecimal totalAmount) {
+}
