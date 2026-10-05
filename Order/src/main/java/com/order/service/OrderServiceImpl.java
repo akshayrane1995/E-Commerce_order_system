@@ -1,7 +1,6 @@
 package com.order.service;
 
 import java.time.LocalDateTime;
-
 import org.springframework.stereotype.Service;
 
 import com.order.client.ProductClient;
@@ -10,7 +9,9 @@ import com.order.dto.OrderDto;
 import com.order.dto.ProductResponseDto;
 import com.order.entity.Order;
 import com.order.entity.OrderItem;
+import com.order.event.OrderCreatedEvent;
 import com.order.exception.ResourceNotFoundException;
+import com.order.kafka.OrderEventProducer;
 import com.order.mapper.OrderMapper;
 import com.order.repository.OrderRepository;
 
@@ -21,35 +22,47 @@ public class OrderServiceImpl implements OrderService {
 
 	private OrderRepository orderRepository;
 	private ProductClient productClient;
+	private final OrderEventProducer orderEventProducer; 
 
-	public OrderServiceImpl(OrderRepository orderRepository, ProductClient productClient) {
+	public OrderServiceImpl(OrderRepository orderRepository, ProductClient productClient, OrderEventProducer orderEventProducer) {
 		this.orderRepository = orderRepository;
 		this.productClient = productClient;
+		this.orderEventProducer = orderEventProducer;
 	}
 
-	@Override
-	public OrderDto createOrder(OrderDto orderDto) {
-		Order order = OrderMapper.mapToOrder(orderDto);
-
-		for (OrderItem item : order.getItem()) {
-			try {
-				ProductResponseDto product = productClient.getProductById(item.getProductId());
-
-				if (product == null) {
+		@Override
+		public OrderDto createOrder(OrderDto orderDto) {
+			Order order = OrderMapper.mapToOrder(orderDto);
+	
+			for (OrderItem item : order.getItem()) {
+				try {
+					ProductResponseDto product = productClient.getProductById(item.getProductId());
+	
+					if (product == null) {
+						throw new ResourceNotFoundException("Product does not exist: " + item.getProductId());
+					}
+	
+				} catch (FeignException.NotFound exception) {
 					throw new ResourceNotFoundException("Product does not exist: " + item.getProductId());
 				}
-
-			} catch (FeignException.NotFound exception) {
-				throw new ResourceNotFoundException("Product does not exist: " + item.getProductId());
 			}
+			LocalDateTime now = LocalDateTime.now();
+			order.setCreatedAt(now);
+			order.setUpdatedAt(now);
+			order.setStatus(OrderStatus.PENDING);
+			Order save = orderRepository.save(order);
+			
+			//create kafka event
+			OrderCreatedEvent event = new OrderCreatedEvent(
+					save.getId(),
+					save.getUserId(),
+					save.getTotalAmount());
+			
+			//publish event to kafka
+			orderEventProducer.publishOrderCreated(event);
+			
+			return OrderMapper.mapToOrderDto(save);
 		}
-		LocalDateTime now = LocalDateTime.now();
-		order.setCreatedAt(now);
-		order.setUpdatedAt(now);
-		order.setStatus(OrderStatus.PENDING);
-		Order save = orderRepository.save(order);
-		return OrderMapper.mapToOrderDto(save);
-	}
 
 	@Override
 	public OrderDto getOrderById(Long id) {
