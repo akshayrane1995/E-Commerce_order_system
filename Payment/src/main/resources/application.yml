@@ -6,11 +6,12 @@ spring:
     name: PAYMENT-SERVICE
 
   datasource:
-    url: jdbc:mysql://localhost:3306/ecommerce?createDatabaseIfNotExist=true
+    # url: jdbc:mysql://host.docker.internal:3306/ecommerce?createDatabaseIfNotExist=true
+    url: jdbc:mysql://localhost:3306/ecommerce?createDatabaseIfNotExist=true 
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
-  
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -20,9 +21,20 @@ spring:
         format_sql: true
     database-platform: org.hibernate.dialect.MySQLDialect
 
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: payment-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+      properties:
+        spring.json.value.default.type: com.payment.event.OrderCreatedEvent
+        spring.json.use.type.headers: false
+
 eureka:
- client:
-  service-url:
-    defaultZone: http://localhost:8761/eureka/
- instance:
-    prefer-ip-address: true	
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
