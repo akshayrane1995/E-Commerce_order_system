@@ -1,6 +1,8 @@
 package com.order.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.order.client.ProductClient;
@@ -10,6 +12,7 @@ import com.order.dto.ProductResponseDto;
 import com.order.entity.Order;
 import com.order.entity.OrderItem;
 import com.order.event.OrderCreatedEvent;
+import com.order.event.OrderItemEvent;
 import com.order.exception.ResourceNotFoundException;
 import com.order.kafka.OrderEventProducer;
 import com.order.mapper.OrderMapper;
@@ -53,10 +56,18 @@ public class OrderServiceImpl implements OrderService {
 			Order save = orderRepository.save(order);
 			
 			//create kafka event
+			List<OrderItemEvent> items = save.getItem()
+					.stream()
+					.map(item -> new OrderItemEvent(
+							item.getProductId(),
+							item.getQuantity()))
+					.toList();
+			
 			OrderCreatedEvent event = new OrderCreatedEvent(
 					save.getId(),
 					save.getUserId(),
-					save.getTotalAmount());
+					save.getTotalAmount(),
+					items);
 			
 			//publish event to kafka
 			orderEventProducer.publishOrderCreated(event);
