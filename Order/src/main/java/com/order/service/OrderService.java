@@ -1,5 +1,6 @@
 package com.order.service;
 
+import com.order.constant.OrderStatus;
 import com.order.dto.OrderDto;
 
 public interface OrderService {
@@ -11,5 +12,7 @@ public interface OrderService {
 	OrderDto updateOrder(Long id, OrderDto orderDto);
 
 	void deleteOrder(Long id);
+	
+	void updateOrderStatus(Long orderId, OrderStatus status);
 
 }

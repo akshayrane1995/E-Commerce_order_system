@@ -25,55 +25,48 @@ public class OrderServiceImpl implements OrderService {
 
 	private OrderRepository orderRepository;
 	private ProductClient productClient;
-	private final OrderEventProducer orderEventProducer; 
+	private final OrderEventProducer orderEventProducer;
 
-	public OrderServiceImpl(OrderRepository orderRepository, ProductClient productClient, OrderEventProducer orderEventProducer) {
+	public OrderServiceImpl(OrderRepository orderRepository, ProductClient productClient,
+			OrderEventProducer orderEventProducer) {
 		this.orderRepository = orderRepository;
 		this.productClient = productClient;
 		this.orderEventProducer = orderEventProducer;
 	}
 
-		@Override
-		public OrderDto createOrder(OrderDto orderDto) {
-			Order order = OrderMapper.mapToOrder(orderDto);
-	
-			for (OrderItem item : order.getItem()) {
-				try {
-					ProductResponseDto product = productClient.getProductById(item.getProductId());
-	
-					if (product == null) {
-						throw new ResourceNotFoundException("Product does not exist: " + item.getProductId());
-					}
-	
-				} catch (FeignException.NotFound exception) {
+	@Override
+	public OrderDto createOrder(OrderDto orderDto) {
+		Order order = OrderMapper.mapToOrder(orderDto);
+
+		for (OrderItem item : order.getItem()) {
+			try {
+				ProductResponseDto product = productClient.getProductById(item.getProductId());
+
+				if (product == null) {
 					throw new ResourceNotFoundException("Product does not exist: " + item.getProductId());
 				}
+
+			} catch (FeignException.NotFound exception) {
+				throw new ResourceNotFoundException("Product does not exist: " + item.getProductId());
 			}
-			LocalDateTime now = LocalDateTime.now();
-			order.setCreatedAt(now);
-			order.setUpdatedAt(now);
-			order.setStatus(OrderStatus.PENDING);
-			Order save = orderRepository.save(order);
-			
-			//create kafka event
-			List<OrderItemEvent> items = save.getItem()
-					.stream()
-					.map(item -> new OrderItemEvent(
-							item.getProductId(),
-							item.getQuantity()))
-					.toList();
-			
-			OrderCreatedEvent event = new OrderCreatedEvent(
-					save.getId(),
-					save.getUserId(),
-					save.getTotalAmount(),
-					items);
-			
-			//publish event to kafka
-			orderEventProducer.publishOrderCreated(event);
-			
-			return OrderMapper.mapToOrderDto(save);
 		}
+		LocalDateTime now = LocalDateTime.now();
+		order.setCreatedAt(now);
+		order.setUpdatedAt(now);
+		order.setStatus(OrderStatus.PENDING);
+		Order save = orderRepository.save(order);
+
+		// create kafka event
+		List<OrderItemEvent> items = save.getItem().stream()
+				.map(item -> new OrderItemEvent(item.getProductId(), item.getQuantity())).toList();
+
+		OrderCreatedEvent event = new OrderCreatedEvent(save.getId(), save.getUserId(), save.getTotalAmount(), items);
+
+		// publish event to kafka
+		orderEventProducer.publishOrderCreated(event);
+
+		return OrderMapper.mapToOrderDto(save);
+	}
 
 	@Override
 	public OrderDto getOrderById(Long id) {
@@ -102,4 +95,17 @@ public class OrderServiceImpl implements OrderService {
 		}
 		orderRepository.deleteById(id);
 	}
+
+	@Override
+	public void updateOrderStatus(Long orderId, OrderStatus status) {
+		Order order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order does not exist: " + orderId));
+
+		order.setStatus(status);
+		order.setUpdatedAt(LocalDateTime.now());
+
+		orderRepository.save(order);
+
+		System.out.println("Order status updated: orderId=" + orderId + ", status=" + status);
+	}
+
 }
