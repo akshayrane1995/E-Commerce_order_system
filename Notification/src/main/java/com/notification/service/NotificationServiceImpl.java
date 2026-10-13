@@ -26,7 +26,7 @@ public class NotificationServiceImpl implements NotificationService {
 	public NotificationDto createNotification(NotificationDto notificationDto) {
 		Notification notification = NotificationMapper.mapToNotification(notificationDto);
 		LocalDateTime now = LocalDateTime.now();
-		notification.setStatus(NotificationStatus.PENDING);   
+		notification.setStatus(NotificationStatus.SENT);   
 		notification.setCreatedAt(now);
 		notification.setUpdatedAt(now);
 		Notification save = notificationRepository.save(notification);
