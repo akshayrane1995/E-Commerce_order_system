@@ -27,7 +27,13 @@ public class AuthController {
 	
 	@PostMapping("/login")
 	public ResponseEntity<JwtResponse> login(@Valid @RequestBody JwtRequest jwtRequest) {
+		
+		System.out.println("Login API called");
+	    System.out.println("Email received: " + jwtRequest.getEmail());
+		
 		return new ResponseEntity<>(authService.login(jwtRequest),HttpStatus.OK);
 	}
+	
+	
 }
 
