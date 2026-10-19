@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import {
   BrowserRouter,
@@ -5,6 +6,7 @@ import {
   Route,
   useLocation,
   Link,
+  Navigate,
 } from 'react-router-dom';
 
 import Home from './Pages/Home';
@@ -13,8 +15,25 @@ import Register from './Pages/Register';
 import Cart from './Pages/Cart';
 import './App.css';
 
-function AppLayout({ darkMode, toggleTheme, cart, cartCount, addToCart, removeFromCart, updateQuantity,}) 
-{
+function ProtectedRoute({ children }) {
+  const token = sessionStorage.getItem('jwtToken');
+
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+}
+
+function AppLayout({
+  darkMode,
+  toggleTheme,
+  cart,
+  cartCount,
+  addToCart,
+  removeFromCart,
+  updateQuantity,
+}) {
   const location = useLocation();
   const isHomePage = location.pathname === '/';
 
@@ -32,12 +51,14 @@ function AppLayout({ darkMode, toggleTheme, cart, cartCount, addToCart, removeFr
         <Route
           path="/"
           element={
-            <Home
-              cartCount={cartCount}
-              addToCart={addToCart}
-              darkMode={darkMode}
-              toggleTheme={toggleTheme}
-            />
+            <ProtectedRoute>
+              <Home
+                cartCount={cartCount}
+                addToCart={addToCart}
+                darkMode={darkMode}
+                toggleTheme={toggleTheme}
+              />
+            </ProtectedRoute>
           }
         />
 
@@ -48,11 +69,13 @@ function AppLayout({ darkMode, toggleTheme, cart, cartCount, addToCart, removeFr
         <Route
           path="/cart"
           element={
-            <Cart
-              cart={cart}
-              removeFromCart={removeFromCart}
-              updateQuantity={updateQuantity}
-            />
+            <ProtectedRoute>
+              <Cart
+                cart={cart}
+                removeFromCart={removeFromCart}
+                updateQuantity={updateQuantity}
+              />
+            </ProtectedRoute>
           }
         />
       </Routes>
