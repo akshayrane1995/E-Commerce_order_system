@@ -28,6 +28,7 @@ const products = [
 
 function Home({ cartCount, addToCart, darkMode, toggleTheme }) {
   const [search, setSearch] = useState('');
+  const isLoggedIn = Boolean(sessionStorage.getItem('jwtToken'));
 
   const filteredProducts = products.filter((product) =>
     `${product.name} ${product.category}`
@@ -51,14 +52,33 @@ function Home({ cartCount, addToCart, darkMode, toggleTheme }) {
           onChange={(event) => setSearch(event.target.value)}
         />
 
+        
         <div className="nav-links">
           <a href="#products">Products</a>
-          <Link to="/login">Login</Link>
-          <Link to="/register">Register</Link>
+          
+          {isLoggedIn ? (
+            <button
+              type="button"
+              className="logout-button"
+              onClick={() => {
+                sessionStorage.removeItem('jwtToken');
+                window.location.href = '/login';
+              }}
+            >
+              Logout
+            </button>
+          ) : (
+            <>
+              <Link to="/login">Login</Link>
+              <Link to="/register">Register</Link>
+            </>
+          )}
+        
           <Link to="/cart" className="cart-button">
             🛒 Cart ({cartCount})
           </Link>
         </div>
+
 
         <button
           type="button"
