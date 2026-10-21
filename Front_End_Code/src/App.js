@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import ProductDetails from './Pages/ProductDetails';
 import {
   BrowserRouter,
   Routes,
@@ -61,6 +62,15 @@ function AppLayout({
             </ProtectedRoute>
           }
         />
+
+        <Route
+            path="/product/:id"
+            element={
+              <ProtectedRoute>
+                <ProductDetails addToCart={addToCart} />
+              </ProtectedRoute>
+            }
+          />
 
         <Route path="/login" element={<Login />} />
 
