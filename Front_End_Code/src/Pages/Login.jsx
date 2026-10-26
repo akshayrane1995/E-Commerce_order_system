@@ -40,6 +40,7 @@ const handleLogin = async (event) => {
     }
 
     sessionStorage.setItem('jwtToken', data.jwtToken);
+    sessionStorage.setItem('userId', data.userId);
     setMessage('Login successful! JWT token received.');
 
     navigate('/');
