@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import ProductDetails from './Pages/ProductDetails';
 import {
   BrowserRouter,
   Routes,
@@ -14,6 +13,8 @@ import Home from './Pages/Home';
 import Login from './Pages/Login';
 import Register from './Pages/Register';
 import Cart from './Pages/Cart';
+import ProductDetails from './Pages/ProductDetails';
+
 import './App.css';
 
 function ProtectedRoute({ children }) {
@@ -64,13 +65,13 @@ function AppLayout({
         />
 
         <Route
-            path="/product/:id"
-            element={
-              <ProtectedRoute>
-                <ProductDetails addToCart={addToCart} />
-              </ProtectedRoute>
-            }
-          />
+          path="/product/:id"
+          element={
+            <ProtectedRoute>
+              <ProductDetails addToCart={addToCart} />
+            </ProtectedRoute>
+          }
+        />
 
         <Route path="/login" element={<Login />} />
 
@@ -107,6 +108,24 @@ function App() {
         (item) => item.id === product.id
       );
 
+      const currentQuantity = existingProduct
+        ? existingProduct.quantity
+        : 0;
+
+      const availableStock = Number(product.stockQuantity);
+
+      if (
+        !Number.isFinite(availableStock) ||
+        availableStock < 0
+      ) {
+        return previousCart;
+      }
+
+      if (currentQuantity >= availableStock) {
+        alert('Sorry, available stock limit reached!');
+        return previousCart;
+      }
+
       if (existingProduct) {
         return previousCart.map((item) =>
           item.id === product.id
@@ -115,7 +134,10 @@ function App() {
         );
       }
 
-      return [...previousCart, { ...product, quantity: 1 }];
+      return [
+        ...previousCart,
+        { ...product, quantity: 1 },
+      ];
     });
   };
 
@@ -126,16 +148,34 @@ function App() {
   };
 
   const updateQuantity = (productId, quantity) => {
+    const item = cart.find(
+      (product) => product.id === productId
+    );
+
+    if (!item) {
+      return;
+    }
+
     if (quantity < 1) {
       removeFromCart(productId);
       return;
     }
 
+    const availableStock = Number(item.stockQuantity);
+
+    if (
+      !Number.isFinite(availableStock) ||
+      quantity > availableStock
+    ) {
+      alert('Sorry, available stock limit reached!');
+      return;
+    }
+
     setCart((previousCart) =>
-      previousCart.map((item) =>
-        item.id === productId
-          ? { ...item, quantity }
-          : item
+      previousCart.map((product) =>
+        product.id === productId
+          ? { ...product, quantity }
+          : product
       )
     );
   };
@@ -146,7 +186,11 @@ function App() {
   );
 
   return (
-    <div className={`app ${darkMode ? 'dark-mode' : 'light-mode'}`}>
+    <div
+      className={`app ${
+        darkMode ? 'dark-mode' : 'light-mode'
+      }`}
+    >
       <BrowserRouter>
         <AppLayout
           darkMode={darkMode}
